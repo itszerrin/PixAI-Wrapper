@@ -28,6 +28,9 @@ def get_image_batch(prompt: str, negative_prompt: str, size: Tuple[int, int], __
     :return: A list of images as PIL.Image objects if _saveConfig is None, otherwise return if _saveConfig.additional_return_mode is True. Otherwise, None.
     """
 
+    # pre-check: if _n is less than 1 or greater than 16, raise an error
+    if _n < 1 or _n > 16:   raise ValueError("The number of images to generate must be between 1 and 16.") # 16 is the maximum number of images that can be generated at once
+
     __headers = {
         "Host": "inference.pixai.art",
         "User-Agent": f"{UserAgent().random}",
