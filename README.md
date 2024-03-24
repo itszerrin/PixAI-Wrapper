@@ -1,6 +1,8 @@
 # PixAI Realtime Image Generation Wrapper
 
-**This is a collection of Python scripts. Together, they can take a prompt input and gather a pre-generated image from PixAI directly.**
+**This is a collection of Python scripts. Together, they can take a prompt input and generates images from PixAI directly. This procedure does NOT cost you credits and you can use an alt too.**
+
+Note: The **Realtime generation** feature is a compromise to not pay tokens but your images are of lesser quality.
 
 ---
 
@@ -35,6 +37,8 @@ from res.scripts.get_jwt            import get_jwt
 ```py
 from res.SaveConfig                 import SaveConfig
 ```
+
+---
 
 ## 3. Saveconfig (optional)
 
@@ -82,16 +86,117 @@ generated-image_2.png
 generated-image_3.png
 ```
 
+---
+
 ## Getting the JWT
 
 Here's example code to fetch your JWT.
 
 ```py
  jwt: str = get_jwt(
-  email="<your email here>",
-  password="<your password here>"
+  email="<your pixai email here>",
+  password="<your pixai password here>"
 )
 ```
 
-This will 
+This will return a jwt of type string. Now you may actually use the function to gather the images
 
+## 4. Fetching a batch of images
+
+### 4.1 Compiling the parameters
+
+To gather images, simply call the ``get_image_batch`` function after you've imported it.
+
+Parameters:
+
+- prompt: str = The prompt to generate the images from
+- negative_prompt: str = The negative prompt to generate the image from
+- size: tuple[int, int]: Width x Height of the image. it is generally recommended to keep this at 512x512 For speed and a higher chance of getting a result.
+- __jwt: str = The JWT.
+- _n: int = Number of images to generate | defaults to one
+- _seed: int = The seed to generate the image with. Defaults to a None and lets PixAI decide.
+- _saveConfig: SaveConfig = Optional SaveConfig if you want to save the images quickly and easily
+
+Returns:
+
+- if a `SaveConfig` is provided, and `_saveConfig.additional_return_mode` is true, it saves the images and returns a `List[Image]` object. Image is inherited from PIL.
+- If `_saveConfig.additional_return_mode` is False, the API returns `None`
+- If no `SaveConfig` is provided, it return `List[Image]` object. Image is inherited from PIL.
+
+### 4.2 Calling the function
+
+Below is an example of how to generate images of a dog. The negative prompt is one I found and is useful to generate high quality results.
+
+```py
+"""
+The images automatically saved under 'output/images' as 'image-0.png'. The API didn't return anything because additional_return_mode is False.
+"""
+
+save_config = SaveConfig(
+    save_dir="output/images",
+    save_name="image",
+    force_mkdir=True,
+    additional_return_mode=False,
+    separator="-"
+)
+
+image_outputs = get_image_batch(
+    prompt="1dog. White. Fluffly. Looking at the camera.",
+    negative_prompt="nsfw, lowres, (bad), text, error, fewer, extra, missing, worst quality, jpeg artifacts, low quality, watermark, unfinished, displeasing, oldest, early, chromatic aberration, signature, extra digits, artistic error, username, scan, abstract",
+    size=(512, 512),
+    _n=1,
+    __jwt=__jwt,
+    _saveConfig=save_config
+)
+```
+
+### (4.3) Handling returned images
+
+The Images are basic `Image` objects of the [Image](https://pillow.readthedocs.io/en/stable/reference/Image.html) module.
+
+Output:
+
+![Output_image_example_dog](https://i.imgur.com/msk40mQ.png)
+
+---
+
+## Example code:
+
+```py
+from res.scripts.get_jwt            import get_jwt
+from res.scripts.generate_images    import get_image_batch
+from res.SaveConfig                 import SaveConfig
+
+# create a SaveConfig object
+save_config = SaveConfig(
+    save_dir="output/images",
+    save_name="image",
+    force_mkdir=True,
+    additional_return_mode=True,
+    separator="-"
+)
+
+if __name__ == '__main__':
+
+    __jwt: str = get_jwt(
+        email="xxxxxxxx", # input your actual email here
+        password="xxxxxx" # input your actual password here
+    )
+
+    image_outputs = get_image_batch(
+        prompt="1cat. Yellow. Aggressive. Angry. Hissing at the camera. Best quality. Masterpiece. Best anatomy. Open mouth.",
+        negative_prompt="nsfw, lowres, (bad), text, error, fewer, extra, missing, worst quality, jpeg artifacts, low quality, watermark, unfinished, displeasing, oldest, early, chromatic aberration, signature, extra digits, artistic error, username, scan, abstract",
+        size=(512, 512),
+        _n=1,
+        __jwt=__jwt,
+        _saveConfig=save_config
+    )
+
+    # we can run the for loop because the API class is set to additionally return the images again 
+    for image in image_outputs:
+        image.show()
+```
+
+Output:
+
+![Aggressive_cat_example](https://i.imgur.com/VOneDA2.png)
