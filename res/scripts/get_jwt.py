@@ -61,7 +61,7 @@ def get_jwt(email: str, password: str) -> str:
     # Get local storage entry
     localstorage = browser.execute_script("return window.localStorage;")
     jwt: str = str(localstorage['https://api.pixai.art:token'])
-    logging.info("Got JWT token. Terminating browser.")
+    logging.info("Got JWT. Terminating browser.")
 
     # Wait for some time before closing the browser
     browser.quit()
