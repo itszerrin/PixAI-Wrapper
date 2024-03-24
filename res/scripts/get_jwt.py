@@ -20,6 +20,7 @@ def get_jwt(email: str, password: str) -> str:
 
     # Start a new instance of Chrome web browser
     options = webdriver.ChromeOptions()
+    options.add_argument("--lang=en-US")
     browser = webdriver.Chrome(options=options)
     browser.minimize_window()
 
@@ -31,7 +32,7 @@ def get_jwt(email: str, password: str) -> str:
     time.sleep(2)
 
     # Click button with specific text
-    nextbtn = browser.find_element(By.XPATH, '//button[contains(text(), "Mit E-Mail anmelden")]')
+    nextbtn = browser.find_element(By.XPATH, '//button[contains(text(), "Log in with email")]')
     nextbtn.click()
 
     # Wait for a bit to let the next page load
@@ -50,7 +51,7 @@ def get_jwt(email: str, password: str) -> str:
     #time.sleep(0.5)
 
     # Find login button by id and click
-    login_btn = browser.find_element(By.XPATH, '//button[contains(text(), "Anmelden")]')
+    login_btn = browser.find_element(By.XPATH, '//button[contains(text(), "Login")]')
     login_btn.click()
     logging.info("Clicked login button.")
 
