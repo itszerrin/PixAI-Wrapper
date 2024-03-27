@@ -31,6 +31,9 @@ def get_image_batch(prompt: str, negative_prompt: str, size: Tuple[int, int], __
     # pre-check: if _n is less than 1 or greater than 16, raise an error
     if _n < 1 or _n > 16:   raise ValueError("The number of images to generate must be between 1 and 16.") # 16 is the maximum number of images that can be generated at once
 
+    # new pre-check: if resolution is over 768x768, warn the user
+    if size[0] > 768 or size[1] > 768:   logging.warning("The resolution is over 768x768. This may cause issues with the API. Generating a low quantity of images is recommended for resolutions over 768x768.")
+
     __headers = {
         "Host": "inference.pixai.art",
         "User-Agent": f"{UserAgent().random}",
