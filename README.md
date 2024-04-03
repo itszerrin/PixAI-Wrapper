@@ -200,3 +200,45 @@ if __name__ == '__main__':
 Output:
 
 ![Aggressive_cat_example](https://i.imgur.com/VOneDA2.png)
+
+### Auto-claiming your daily credits
+
+To auto-claim your daily credits, first import the code to claim credits and the code to get your jwt
+
+```py
+from res.scripts.claim_credits      import claim_daily_credits
+from res.scripts.get_jwt            import get_jwt
+```
+
+Next, import the function for retrieving the user id
+
+```py
+from res.scripts.user_id            import get_user_id
+```
+
+Then, retrieve your jwt
+
+```py
+ __jwt: str = get_jwt(
+    email="xxxxxx", # your email here
+    password="xxxxxx" # your password here
+)
+```
+
+Afterwards, get your user ID:
+
+```py
+user_id = get_user_id(__jwt)
+```
+
+Lastly, call the `claim_daily_credits` function
+
+```py
+claim_daily_credits(
+    id=user_id,
+    email="xxxxxxx", # your email here
+    password="xxxxxx" # your password here
+    )
+```
+
+You will only get an error if something went wrong. It will tell you in the console if it was able to claim your daily credits or if you already claimed them.
