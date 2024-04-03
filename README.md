@@ -238,7 +238,7 @@ claim_daily_credits(
     id=user_id,
     email="xxxxxxx", # your email here
     password="xxxxxx" # your password here
-    )
+)
 ```
 
 You will only get an error if something went wrong. It will tell you in the console if it was able to claim your daily credits or if you already claimed them.
