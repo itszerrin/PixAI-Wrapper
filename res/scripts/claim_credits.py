@@ -85,13 +85,13 @@ def claim_daily_credits(email: str, password: str) -> None:
     time.sleep(2)
 
     try:
+        # Check if the credits have already been claimed
         claim_btn = browser.find_element(
             By.XPATH, "//button[contains(span/text(), 'Claimed')]")
         logging.info("Credits - Already claimed.")
         return
     except:
-
-        # try finding claimed text instead
+        # If not claimed then find the claim button
         try:
             claim_btn = browser.find_element(
             By.XPATH, "//button[contains(span/text(), 'Claim')]")
