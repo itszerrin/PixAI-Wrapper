@@ -82,15 +82,17 @@ def claim_daily_credits(email: str, password: str) -> None:
 
     # finds the specific button that contains the text "Claim"/"Claimed"
     try:
-        claim_btn = WebDriverWait(browser, 4).until(
+        claim_btn = WebDriverWait(browser, 10).until(
             EC.presence_of_element_located(
                 (By.XPATH, "//section//div//div[2]//div[2]//button"))
         )
         text = claim_btn.get_attribute("textContent").strip()
         if text == "Claimed":
             logging.info("Credits - Already claimed.")
-            browser.quit()
-            return
+            raise SystemExit
+    except SystemExit:
+        browser.quit()
+        return
     except:
         logging.info("Credits - An Error Occurred.")
         quit('An Error Occurred: Could not find claim button.')
