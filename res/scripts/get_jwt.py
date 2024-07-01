@@ -32,7 +32,7 @@ def get_jwt(email: str, password: str) -> str:
     time.sleep(2)
 
     # Click button with specific text
-    nextbtn = browser.find_element(By.XPATH, '//button[contains(text(), "Log in with email")]')
+    nextbtn = browser.find_element(By.XPATH, '//span[contains(text(), "Continue with Email")]')
     nextbtn.click()
 
     # Wait for a bit to let the next page load
