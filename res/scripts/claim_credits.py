@@ -1,17 +1,14 @@
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+from secrets        import randbelow
+from fake_useragent import UserAgent
 import logging
-
-from time import sleep
+import requests
 
 # logging configuration
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
 
-def claim_daily_credits(email: str, password: str) -> None:
+def claim_daily_credits(jwt: str) -> None:
     """
     Log into the PixAI website and claim the daily credits.
 
@@ -21,86 +18,42 @@ def claim_daily_credits(email: str, password: str) -> None:
     :return: None
     """
 
-    # Start a new instance of Chrome web browser
-    options = webdriver.ChromeOptions()
-    options.add_argument("--lang=en-US")
-    browser = webdriver.Chrome(options=options)
-    browser.minimize_window()
+    url: str = "https://api.pixai.art/graphql"
 
-    # Open the URL in the browser
-    browser.get('about:blank')
-    browser.get('https://pixai.art/login?to=/generator/realtime/text')
+    headers = {
+        "Host": "api.pixai.art",
+        "User-Agent": UserAgent().random.__repr__(),
+        "Accept": "*/*",
+        "Accept-Language": "en-US,en;q=0.5",
+        "Accept-Encoding": "gzip, deflate, br, zstd",
+        "Authorization": "Bearer " + jwt,
+        "Content-Type": "application/json",
+        "Content-Length": f"{randbelow(80)}",
+        "Origin": "https://pixai.art",
+        "DNT": "1",
+        "Sec-GPC": "1",
+        "Connection": "keep-alive",
+        "Referer": "https://pixai.art/",
+        "Sec-Fetch-Dest": "empty",
+        "Sec-Fetch-Mode": "cors",
+        "Sec-Fetch-Site": "same-site",
+        "Priority": "u=0",
+        "TE": "trailers"
+    }
 
-    # Wait for the "Log in with email" button to be clickable
-    nextbtn = WebDriverWait(browser, 10).until(
-        EC.element_to_be_clickable(
-            (By.XPATH, '//button[contains(text(), "Log in with email")]'))
-    )
-    nextbtn.click()
+    data = {
+        "query": "\n    mutation dailyClaimQuota {\n  dailyClaimQuota\n}\n    "
+    }
 
-    # Find email input field by id and send keys
-    email_input = WebDriverWait(browser, 10).until(
-        EC.presence_of_element_located((By.ID, "email-input"))
-    )
-    email_input.send_keys(f"{email}")
-    logging.info("Credits - Sent email to input field.")
+    response = requests.post(url, headers=headers, json=data)
+    response.raise_for_status()
 
-    # Find password input field by id and send keys
-    password_input = WebDriverWait(browser, 10).until(
-        EC.presence_of_element_located((By.ID, "password-input"))
-    )
-    password_input.send_keys(f"{password}")
-    logging.info("Credits - Sent password to input field.")
-
-    # Find login button by id and click
-    login_btn = WebDriverWait(browser, 10).until(
-        EC.element_to_be_clickable(
-            (By.XPATH, '//button[contains(text(), "Login")]'))
-    )
-    login_btn.click()
-    logging.info("Credits - Clicked login button.")
-
-    # Click two buttons to get to the profile page with the claim button
+    # check inside the json if there's an error because the status code is still 200
     try:
-        # get the last child of header element and click it
-        profileIcon_btn = WebDriverWait(browser, 10).until(
-            EC.element_to_be_clickable((By.XPATH, "//header/*[last()]"))
-        )
-        profileIcon_btn.click()
+        if response.json()['errors'][0]['extensions']['exception']['status'] == 403:
+            logging.error(f"Failed to claim daily credits. Reason: {response.json()['errors'][0]['message']}")
+    except KeyError:
+        logging.info(f"Claimed daily credits. Response: {response.json()}")
 
-        # click the span element with the text "Profile"
-        profile_btn = WebDriverWait(browser, 10).until(
-            EC.presence_of_element_located(
-                (By.XPATH, "//span[contains(text(), 'Profile')]"))
-        )
-        profile_btn.click()
-    except:
-        logging.info("Credits - An Error Occurred.")
-        quit('An Error Occurred: Could not find profile icon button or profile button.')
+    return None
 
-    sleep(1)
-
-    # finds the specific button that contains the text "Claim"/"Claimed"
-    try:
-        claim_btn = WebDriverWait(browser, 10).until(
-            EC.presence_of_element_located(
-                (By.XPATH, "//section//div//div[2]//div[2]//button"))
-        )
-        text = claim_btn.get_attribute("textContent").strip()
-        if text == "Claimed":
-            logging.info("Credits - Already claimed.")
-            raise SystemExit
-    except SystemExit:
-        browser.quit()
-        return
-    except:
-        logging.info("Credits - An Error Occurred.")
-        quit('An Error Occurred: Could not find claim button.')
-
-    # click the button that contains a span element with the text "Claim"
-    claim_btn.click()
-    sleep(1.5) # time to register the click
-    logging.info("Credits - Clicked claim button.")
-
-    # Close the browser
-    browser.quit()
