@@ -12,8 +12,7 @@ def claim_daily_credits(jwt: str) -> None:
     """
     Log into the PixAI website and claim the daily credits.
 
-    :param email: The email to login with.
-    :param password: The password to login with.
+    :param jwt: Your auth token.
 
     :return: None
     """
