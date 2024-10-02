@@ -213,8 +213,7 @@ Then, call the `claim_daily_credits` function
 
 ```py
 claim_daily_credits(
-    email="xxxxxxx", # your email here
-    password="xxxxxx" # your password here
+    jwt # you need your jwt from above
 )
 ```
 
